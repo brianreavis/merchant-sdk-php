@@ -13,20 +13,24 @@ class PPConfigManager {
 	 */
 	private static $instance;
 
-	private function __construct(){
-		if(defined('PP_CONFIG_PATH')) {
-			$configFile = constant('PP_CONFIG_PATH') . '/sdk_config.ini';
-		} else {		
-			$configFile = implode(DIRECTORY_SEPARATOR,
-				array(dirname(__FILE__), "..", "config", "sdk_config.ini"));
+	private function __construct() {
+
+		$environment = defined('PP_CONFIG_ENV') ? PP_CONFIG_ENV : 'sandbox';
+		$filename = 'sdk_' . $environment . '.ini';
+
+		if (defined('PP_CONFIG_PATH')) {
+			$configFile = PP_CONFIG_PATH . '/' . $filename;
+		} else {
+			$configFile = implode(DIRECTORY_SEPARATOR, array(dirname(__FILE__), "..", "config", $filename));
 		}
+
 		$this->load($configFile);
 	}
 
 	// create singleton object for PPConfigManager
-	public static function getInstance()
-	{
-		if ( !isset(self::$instance) ) {
+	public static function getInstance() {
+
+		if (!isset(self::$instance)) {
 			self::$instance = new PPConfigManager();
 		}
 		return self::$instance;
@@ -36,7 +40,7 @@ class PPConfigManager {
 	private function load($fileName) {
 
 		$this->config = @parse_ini_file($fileName);
-		if($this->config == NULL || count($this->config) == 0) {
+		if ($this->config == NULL || count($this->config) == 0) {
 			throw new PPConfigurationException("Config file $fileName not found","303");
 		}
 	}
@@ -46,23 +50,19 @@ class PPConfigManager {
 	 * If an exact match for key is not found,
 	 * does a "contains" search on the key
 	 */
-	public function get($searchKey){
+	public function get($searchKey) {
 
-		if(array_key_exists($searchKey, $this->config))
-		{
+		if (array_key_exists($searchKey, $this->config)) {
 			return $this->config[$searchKey];
-		}
-		else {
+		} else {
 			$arr = array();
 			foreach ($this->config as $k => $v){
 				if(strstr($k, $searchKey)){
 					$arr[$k] = $v;
 				}
 			}
-			
 			return $arr;
 		}
-
 	}
 
 	/**
@@ -74,7 +74,7 @@ class PPConfigManager {
 	 */
 	public function getIniPrefix($userId = null) {
 
-		if($userId == null) {
+		if ($userId == null) {
 			$arr = array();
 			foreach ($this->config as $key => $value) {
 				$pos = strpos($key, '.');
@@ -87,7 +87,7 @@ class PPConfigManager {
 			$iniPrefix = array_search($userId, $this->config);
 			$pos = strpos($iniPrefix, '.');
 			$acct = substr($iniPrefix, 0, $pos);
-			
+
 			return $acct;
 		}
 	}

@@ -96,13 +96,14 @@ class PPUtils
 		$soap = $xml->children($ns['SOAP-ENV']);
 		$getChild = $soap->Body->children();
 
-		$ret = PPUtils::convertXmlObjToArr($getChild, $array = array());
+		$arr = array();
+		$ret = PPUtils::convertXmlObjToArr($getChild, $arr);
 		return $ret;
 	}
 
 
 
-	function convertXmlObjToArr($obj, &$arr)
+	private static function convertXmlObjToArr($obj, &$arr)
 	{
 		$children = $obj->children();
 		foreach ($children as $elementName => $node) {
